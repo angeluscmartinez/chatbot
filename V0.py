@@ -3,7 +3,8 @@ from openai import OpenAI
 
 st.title("Angel's Awesome Chatbot")
 
-client = OpenAI(api_key=st.secrets["OPENAI_API_key"])
+#api_key = st.secrets["API_KEY"]
+client = OpenAI(api_key=st.secrets["API_key"])
 
 # Chat History
 if "messages" not in st.session_state:
@@ -27,4 +28,3 @@ if prompt:
         )
         response = st.write_stream(stream)
     st.session_state.messages.append({"role": "assistant", "content": response})
-
