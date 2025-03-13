@@ -1,2 +1,2 @@
-openai
-streamlit about your friend
+streamlit
+openai  # If using OpenAI API
