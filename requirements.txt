@@ -1,4 +1,4 @@
 streamlit
 openai  # If using OpenAI API
 streamlit-lottie
-pypdf
+PyPDF2
