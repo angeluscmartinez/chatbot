@@ -1,10 +1,9 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 
 st.title("Angel's Awesome Chatbot")
 
-# Load API key securely from Streamlit Cloud secrets
-openai.api_key = st.secrets["OPENAI_API_KEY"]  # ✅ Secure API key retrieval
+client = OpenAI(api_key=st.secrets["API_key"])
 
 # Chat History
 if "messages" not in st.session_state:
@@ -21,12 +20,11 @@ if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     with st.chat_message("assistant"):
-        response = openai.ChatCompletion.create(
+        stream = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=st.session_state.messages
+            messages=st.session_state.messages,
+            stream=True
         )
-        response_text = response["choices"][0]["message"]["content"]
-        st.markdown(response_text)
-
-    st.session_state.messages.append({"role": "assistant", "content": response_text})
+        response = st.write_stream(stream)
+    st.session_state.messages.append({"role": "assistant", "content": response})
 
