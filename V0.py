@@ -3,7 +3,7 @@ from openai import OpenAI
 
 st.title("Angel's Awesome Chatbot")
 
-client = OpenAI(api_key=st.secrets["API_key"])
+client = OpenAI(api_key=st.secrets["OPENAI_API_key"])
 
 # Chat History
 if "messages" not in st.session_state:
