@@ -6,7 +6,6 @@ from streamlit_lottie import st_lottie
 import io
 
 # Properly initialize OpenAI client
-
 client = OpenAI(api_key=st.secrets["API_key"])
 
 def load_lottiefile(filepath: str):
@@ -14,7 +13,6 @@ def load_lottiefile(filepath: str):
         return json.load(f)
 
 st.set_page_config(page_title="iRIS Agent", page_icon=":guardsman:")
-image = st.image("Picture1.png", use_container_width=False)
 
 hide_st_style = """
             <style>
@@ -34,10 +32,10 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-col1, col2 = st.columns([2, 1])
+col1, col2 = st.columns([1, 2])  # Adjusted column ratio for better alignment
 
 with col1:
-    header = st.title("I'm Your Helpful iRIS AI Agent, Ask Me Anything")
+    st.image("Picture1.png", use_container_width=True)
 
 with col2:
     lottie_coding = load_lottiefile("coding.json")
@@ -51,6 +49,8 @@ with col2:
         width=200,
         key=None,
     )
+
+st.title("I'm Your Helpful iRIS AI Agent, Ask Me Anything")
 
 if "uploaded_content" not in st.session_state:
     st.session_state.uploaded_content = ""
