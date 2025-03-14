@@ -106,7 +106,7 @@ with col3:
     except FileNotFoundError:
         lottie_coding = None
     if lottie_coding:
-        st_lottie(lottie_coding, speed=2, reverse=False, loop=True, quality="high", height=115, width=263, key="lottie_coding")
+        st_lottie(lottie_coding, speed=2, reverse=False, loop=True, quality="high", height=144, width=328, key="lottie_coding")
     else:
         st.write("Lottie animation not found.")
 
