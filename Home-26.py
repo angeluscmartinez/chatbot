@@ -80,7 +80,7 @@ st.markdown(
     }
     .stChatMessage, .stMarkdown, .stTextArea, .stButton, .stTextInput {
         max-width: 1200px;
-        margin: auto;
+        margin-left: 0;
     }
     </style>
     """,
