@@ -109,6 +109,7 @@ with col3:
     except FileNotFoundError:
         lottie_coding = None
     if lottie_coding:
+        st.markdown("<div style='margin-bottom: 50px;'></div>", unsafe_allow_html=True)
         st_lottie(lottie_coding, speed=2, reverse=False, loop=True, quality="high", height=180, width=410, key="lottie_coding")
     st.markdown("</div>", unsafe_allow_html=True)
 
