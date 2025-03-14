@@ -100,8 +100,14 @@ with col2:
     </div>
     """, unsafe_allow_html=True)
 with col3:
-    lottie_coding = load_lottiefile("coding.json")
-    st_lottie(lottie_coding, speed=2, reverse=False, loop=True, quality="high", height=210, width=210, key="lottie_coding")
+    try:
+        lottie_coding = load_lottiefile("coding.json")
+    except FileNotFoundError:
+        lottie_coding = None
+    if lottie_coding:
+        st_lottie(lottie_coding, speed=2, reverse=False, loop=True, quality="high", height=210, width=210, key="lottie_coding")
+    else:
+        st.write("Lottie animation not found.")
 
 # Initialize session state
 if "messages" not in st.session_state:
