@@ -111,8 +111,6 @@ with col3:
     if lottie_coding:
         st_lottie(lottie_coding, speed=2, reverse=False, loop=True, quality="high", height=180, width=410, key="lottie_coding")
     st.markdown("</div>", unsafe_allow_html=True)
-    else:
-        st.write("Lottie animation not found.")
 
 # Initialize session state
 if "messages" not in st.session_state:
