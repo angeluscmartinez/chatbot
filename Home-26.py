@@ -90,7 +90,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-col1, col2 = st.columns([1, 3])
+col1, col2, col3 = st.columns([1, 3, 1])
 with col1:
     st.image("Picture1.png", width=316)
 with col2:
@@ -99,6 +99,9 @@ with col2:
         <h1>I'm Your Helpful iRIS AI Agent, Ask Me Anything</h1>
     </div>
     """, unsafe_allow_html=True)
+with col3:
+    lottie_coding = load_lottiefile("coding.json")
+    st_lottie(lottie_coding, speed=2, reverse=False, loop=True, quality="high", height=210, width=210, key="lottie_coding")
 
 # Initialize session state
 if "messages" not in st.session_state:
@@ -154,6 +157,7 @@ if st.session_state.suggested_questions:
             st.session_state.messages.insert(0, {"role": "assistant", "content": response_text})
             st.session_state.suggested_questions = new_suggestions
             st.rerun()
+
 
 
 
