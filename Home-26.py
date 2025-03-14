@@ -109,7 +109,7 @@ with col3:
     except FileNotFoundError:
         lottie_coding = None
     if lottie_coding:
-        st.markdown("<div style='margin-bottom: 50px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-bottom: 125px;'></div>", unsafe_allow_html=True)
         st_lottie(lottie_coding, speed=2, reverse=False, loop=True, quality="high", height=180, width=410, key="lottie_coding")
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -167,6 +167,7 @@ if st.session_state.suggested_questions:
             st.session_state.messages.insert(0, {"role": "assistant", "content": response_text})
             st.session_state.suggested_questions = new_suggestions
             st.rerun()
+
 
 
 
