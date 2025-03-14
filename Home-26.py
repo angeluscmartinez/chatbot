@@ -100,7 +100,7 @@ with col1:
 with col2:
     st.markdown("""
     <div style="text-align: center; display: flex; align-items: center; justify-content: center; height: auto; align-items: flex-end;">
-        <h1 style="margin: auto; margin-top: 50px; margin-left: 25px;">I'm Your Helpful iRIS AI Agent, Ask Me Anything</h1>
+        <h1 style="margin: auto; margin-top: 50px; margin-left: 50px;">I'm Your Helpful iRIS AI Agent, Ask Me Anything</h1>
     </div>
     """, unsafe_allow_html=True)
 with col3:
@@ -168,6 +168,7 @@ if st.session_state.suggested_questions:
             st.session_state.messages.insert(0, {"role": "assistant", "content": response_text})
             st.session_state.suggested_questions = new_suggestions
             st.rerun()
+
 
 
 
