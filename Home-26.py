@@ -82,7 +82,7 @@ st.markdown(
         max-width: 1500px;
     }
     .stFileUploader {
-        max-width: 300px;
+        max-width: 450px;
         margin-left: 0;
     }
     </style>
@@ -163,6 +163,7 @@ if st.session_state.suggested_questions:
             st.session_state.messages.insert(0, {"role": "assistant", "content": response_text})
             st.session_state.suggested_questions = new_suggestions
             st.rerun()
+
 
 
 
