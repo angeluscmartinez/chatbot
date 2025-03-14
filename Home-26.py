@@ -80,6 +80,9 @@ st.markdown(
     }
     .stChatMessage, .stMarkdown, .stTextArea, .stButton, .stTextInput, .stSubheader {
         max-width: 800px;
+    }
+    .stFileUploader {
+        max-width: 200px;
         margin-left: 0;
     }
     </style>
@@ -148,5 +151,6 @@ if st.session_state.suggested_questions:
             st.session_state.messages.insert(0, {"role": "assistant", "content": response_text})
             st.session_state.suggested_questions = new_suggestions
             st.rerun()
+
 
 
