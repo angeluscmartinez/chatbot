@@ -137,7 +137,15 @@ if st.session_state.show_upload_widget:
             file_context = st.session_state.uploaded_content or st.session_state.uploaded_df.head(50).to_csv(index=False)
             _, suggested_questions = generate_response_and_suggestions("What insights can I get from this data?", file_context)
             st.session_state.suggested_questions = suggested_questions
-        st.rerun()
+        st.markdown("<script>window.scrollTo(0, 0);</script>", unsafe_allow_html=True)
+st.markdown("""
+    <script>
+        setTimeout(function() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }, 100);
+    </script>
+    """, unsafe_allow_html=True)
+st.rerun()
 
 # Chat input form
 with st.form(key="input_form", clear_on_submit=True):
@@ -168,3 +176,4 @@ if st.session_state.suggested_questions:
             st.session_state.messages.insert(0, {"role": "assistant", "content": response_text})
             st.session_state.suggested_questions = new_suggestions
             st.rerun()
+
