@@ -80,7 +80,6 @@ st.markdown(
     }
     .stChatMessage, .stMarkdown, .stTextArea, .stButton, .stTextInput, .stSubheader, .stChatMessage {
         max-width: 1500px;
-        
     }
     .stFileUploader {
         max-width: 200px;
@@ -91,12 +90,15 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-col1, col2 = st.columns([2.5, 1.5])
+col1, col2 = st.columns([1, 3])
 with col1:
-    st.title("I'm Your Helpful iRIS AI Agent, Ask Me Anything")
+    st.image("Picture1.png", width=316)
 with col2:
-    lottie_coding = load_lottiefile("coding.json")
-    st_lottie(lottie_coding, speed=2, reverse=False, loop=True, quality="high", height=210, width=210, key="lottie_coding")
+    st.markdown("""
+    <div style="text-align: center;">
+        <h1>I'm Your Helpful iRIS AI Agent, Ask Me Anything</h1>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Initialize session state
 if "messages" not in st.session_state:
@@ -143,7 +145,7 @@ for message in st.session_state.messages[-10:]:
 
 # Display suggested questions
 if st.session_state.suggested_questions:
-    st.subheader("Or click on a suggested question:")
+    st.subheader("Suggested Questions:")
     for i, question in enumerate(st.session_state.suggested_questions):
         if st.button(question, key=f"suggestion_{i}"):
             file_context = st.session_state.uploaded_content or (st.session_state.uploaded_df.head(50).to_csv(index=False) if st.session_state.uploaded_df is not None else "")
@@ -152,6 +154,7 @@ if st.session_state.suggested_questions:
             st.session_state.messages.insert(0, {"role": "assistant", "content": response_text})
             st.session_state.suggested_questions = new_suggestions
             st.rerun()
+
 
 
 
