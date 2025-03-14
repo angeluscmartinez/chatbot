@@ -90,13 +90,14 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-col1, col2, col3 = st.columns([1, 3, 1])
+col1, col2, col3 = st.columns([1, 3, 1], gap='medium')
 with col1:
     st.image("Picture1.png", width=316)
+    st.markdown("<div style='height: 92px;'></div>", unsafe_allow_html=True)
 with col2:
     st.markdown("""
-    <div style="text-align: center;">
-        <h1>I'm Your Helpful iRIS AI Agent, Ask Me Anything</h1>
+    <div style="text-align: center; display: flex; align-items: center; height: 92px;">
+        <h1 style="margin: auto;">I'm Your Helpful iRIS AI Agent, Ask Me Anything</h1>
     </div>
     """, unsafe_allow_html=True)
 with col3:
@@ -105,7 +106,7 @@ with col3:
     except FileNotFoundError:
         lottie_coding = None
     if lottie_coding:
-        st_lottie(lottie_coding, speed=2, reverse=False, loop=True, quality="high", height=210, width=210, key="lottie_coding")
+        st_lottie(lottie_coding, speed=2, reverse=False, loop=True, quality="high", height=92, width=210, key="lottie_coding")
     else:
         st.write("Lottie animation not found.")
 
@@ -163,6 +164,7 @@ if st.session_state.suggested_questions:
             st.session_state.messages.insert(0, {"role": "assistant", "content": response_text})
             st.session_state.suggested_questions = new_suggestions
             st.rerun()
+
 
 
 
