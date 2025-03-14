@@ -82,7 +82,7 @@ st.markdown(
         max-width: 1500px;
     }
     .stFileUploader {
-        max-width: 200px;
+        max-width: 300px;
         margin-left: 0;
     }
     </style>
