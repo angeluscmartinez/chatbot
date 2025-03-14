@@ -78,8 +78,9 @@ st.markdown(
         max-width: 1600px;
         margin: auto;
     }
-    .stChatMessage, .stMarkdown, .stTextArea, .stButton, .stTextInput, .stSubheader {
-        max-width: 800px;
+    .stChatMessage, .stMarkdown, .stTextArea, .stButton, .stTextInput, .stSubheader, .stChatMessage {
+        max-width: 1500px;
+        
     }
     .stFileUploader {
         max-width: 200px;
@@ -142,7 +143,7 @@ for message in st.session_state.messages[-10:]:
 
 # Display suggested questions
 if st.session_state.suggested_questions:
-    st.subheader("Suggested Questions:")
+    st.subheader("Or click on a suggested question:")
     for i, question in enumerate(st.session_state.suggested_questions):
         if st.button(question, key=f"suggestion_{i}"):
             file_context = st.session_state.uploaded_content or (st.session_state.uploaded_df.head(50).to_csv(index=False) if st.session_state.uploaded_df is not None else "")
@@ -151,6 +152,7 @@ if st.session_state.suggested_questions:
             st.session_state.messages.insert(0, {"role": "assistant", "content": response_text})
             st.session_state.suggested_questions = new_suggestions
             st.rerun()
+
 
 
 
