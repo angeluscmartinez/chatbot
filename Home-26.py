@@ -78,7 +78,7 @@ st.markdown(
         max-width: 1600px;
         margin: auto;
     }
-    .stChatMessage, .stMarkdown, .stTextArea, .stButton {
+    .stChatMessage, .stMarkdown, .stTextArea, .stButton, .stTextInput {
         max-width: 1200px;
         margin: auto;
     }
