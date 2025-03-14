@@ -4,3 +4,4 @@ streamlit-lottie
 PyPDF2
 pandas
 matplotlib
+pdfplumber
