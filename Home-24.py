@@ -21,7 +21,7 @@ def generate_response_and_suggestions(prompt, context):
     try:
         # Generate AI response
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4-turbo",
             messages=[{"role": "system", "content": "You are a helpful assistant."},
                       {"role": "user", "content": full_query}],
             max_tokens=1000,
@@ -32,7 +32,7 @@ def generate_response_and_suggestions(prompt, context):
         # Generate follow-up questions strictly related to the file
         suggestion_prompt = f"Based only on this content, generate two unique follow-up questions that can be answered using the provided document:\n{context}"
         suggestion_response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4-turbo",
             messages=[{"role": "system", "content": "Suggest two follow-up questions based strictly on the document."},
                       {"role": "user", "content": suggestion_prompt}],
             max_tokens=100,
