@@ -54,7 +54,7 @@ def rss_analysis(data, column):
 
 def plot_t_distribution(data, column, confidence_level):
     mean, lower_bound, upper_bound = t_distribution_analysis(data, column, confidence_level)
-    fig, ax = plt.plots()
+    fig, ax = plt.subplots()
     ax.hist(data[column], bins=30, density=True)
     x = np.linspace(data[column].min(), data[column].max(), 100)
     y = t.pdf(x, df=len(data[column]) - 1, loc=mean, scale=data[column].std())
