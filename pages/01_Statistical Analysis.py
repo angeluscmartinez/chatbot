@@ -54,7 +54,7 @@ def rss_analysis(data, column):
 
 def plot_t_distribution(data, column, confidence_level):
     mean, lower_bound, upper_bound = t_distribution_analysis(data, column, confidence_level)
-    fig, ax = plt.plots(figsize=(4, 3))
+    fig, ax = plt.plots()
     ax.hist(data[column], bins=30, density=True)
     x = np.linspace(data[column].min(), data[column].max(), 100)
     y = t.pdf(x, df=len(data[column]) - 1, loc=mean, scale=data[column].std())
@@ -77,7 +77,7 @@ def plot_rss_distribution(data, column):
     upper_bound = data[column].quantile(0.95)
     x = np.linspace(data[column].min(), data[column].max(), 1000)
     y = np.exp(-0.5 * ((x - mean) / np.sqrt(mean**2 + upper_bound**2 - 2 * mean * upper_bound))**2) / (np.sqrt(2 * np.pi) * std)
-    fig, ax = plt.subplots(figsize=(4, 3))
+    fig, ax = plt.subplots()
     ax.hist(data[column], bins=30, density=True)
     ax.plot(x, y, label='RSS')
     ax.axvline(x=upper_bound, color='red', label='upper bound')
