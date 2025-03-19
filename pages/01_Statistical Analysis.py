@@ -4,17 +4,33 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import t
 
-st.set_page_config(page_title="iRIS-Sage", page_icon=":guardsman:")
-hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            #header {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_st_style, unsafe_allow_html=True)
-image = st.image("Picture1.png", use_container_width=False)
-header = st.title("iRIS Sage Statistical Analysis")
+# Streamlit Page Configuration
+st.set_page_config(page_title="iRIS AI Agent", layout="wide")
+
+# Custom CSS for precise logo positioning
+st.markdown(
+    """
+    <style>
+    .image-container {
+        position: relative;
+        left: -5px;
+        top: 10px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Layout for title with image
+col1, col2 = st.columns([5, 1], gap="medium")
+
+with col1:
+    st.title("I'm Your Helpful iRIS AI Agent, Ask Me Anything")
+    st.write("#### Let’s Talk Mission Readiness! 🚀 Discover how we can enhance your mission preparedness with expert engineering services and our AI-enabled mission integration platform, iRIS!")
+with col2:
+    st.markdown('<div class="image-container">', unsafe_allow_html=True)
+    st.image("picture1.png", width=250)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 def t_distribution_analysis(data, column, confidence_level):
     mean = data[column].mean()
