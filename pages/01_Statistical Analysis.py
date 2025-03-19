@@ -75,7 +75,7 @@ def plot_rss_distribution(data, column):
     mean = data[column].mean()
     std = np.sqrt(np.mean(data[column]**2))
     upper_bound = data[column].quantile(0.95)
-    x = np.linspace(data[column].min(), data[column].max(), 1000)
+    x = np.linspace(data[column].min(), data[column].max(), 500)
     y = np.exp(-0.5 * ((x - mean) / np.sqrt(mean**2 + upper_bound**2 - 2 * mean * upper_bound))**2) / (np.sqrt(2 * np.pi) * std)
     fig, ax = plt.subplots()
     ax.hist(data[column], bins=30, density=True)
