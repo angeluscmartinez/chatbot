@@ -6,3 +6,4 @@ pandas
 matplotlib
 pdfplumber
 streamlit-javascript
+scipy
