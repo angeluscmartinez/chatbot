@@ -108,7 +108,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Module & User Selection ---
-modules = [m for m in os.listdir(TRAINING_DIR) if os.path.isdir(os.path.join(TRAINING_DIR, m))]
+modules = sorted([m for m in os.listdir(TRAINING_DIR) if os.path.isdir(os.path.join(TRAINING_DIR, m))])
 if "selected_module" not in st.session_state:
     st.session_state.selected_module = modules[0]
 
