@@ -494,7 +494,7 @@ project_files = discover_project_files()
 # Sidebar project selection
 st.sidebar.title("📁 Project Selector")
 
-project_options = ["-- Select a project --"] + list(project_files.keys())
+project_options = ["-- Select a project --"] + sorted(project_files.keys())
 selected_project = st.sidebar.selectbox("Choose a project:", project_options)
 
 # Don't treat selection as valid if it's the placeholder
