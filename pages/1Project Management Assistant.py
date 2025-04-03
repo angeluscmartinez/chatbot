@@ -7,6 +7,17 @@ import re
 from collections import OrderedDict
 import glob
 
+# Set default font sizes and family for better readability
+plt.rcParams.update({
+    "font.size": 12,         # Increase font size
+    "axes.titlesize": 14,
+    "axes.labelsize": 12,
+    "xtick.labelsize": 10,
+    "ytick.labelsize": 10,
+    "legend.fontsize": 10,
+    "font.family": "DejaVu Sans"  # Safe cross-platform font
+})
+
 # Try secrets first, then fallback to environment
 api_key = None
 if "API_key" in st.secrets:
