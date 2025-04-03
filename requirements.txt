@@ -8,3 +8,4 @@ pdfplumber
 streamlit-javascript
 scipy
 xlrd
+scikit-learn
