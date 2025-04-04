@@ -139,7 +139,7 @@ st.markdown(
 col1, col2 = st.columns([5, 1], gap="medium")
 
 with col1:
-    st.title("🤖 Project Management Assistant")
+    st.title("🤖 iRIS Project Management Assistant")
     st.write("#### I can analyze any of your iRIS data and give you reports & assessments")
 with col2:
     st.markdown('<div class="image-container">', unsafe_allow_html=True)
