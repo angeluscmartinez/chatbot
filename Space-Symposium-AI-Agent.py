@@ -419,7 +419,7 @@ if st.session_state.show_ml_dashboard:
 
 # Display Suggested Questions After Chat Response
 if st.session_state.generated_questions:
-    st.markdown("### Click Suggested Questions:")
+    st.markdown("### Click Suggested Questions or enter your own in the chat window below:")
     for i, question in enumerate(st.session_state.generated_questions):
         if st.button(question, key=f"question_{i}"):
             st.session_state.messages.append({"role": "user", "content": question})
