@@ -6,6 +6,7 @@ import os
 import re
 from collections import OrderedDict
 import glob
+import time
 
 # Set default font sizes and family for better readability
 plt.rcParams.update({
@@ -324,18 +325,17 @@ def export_dataframe_to_csv(filtered_df, filename="filtered_data.csv"):
     st.markdown(href, unsafe_allow_html=True)
 
 # Load the default project file
-def load_default_file(path):
+def load_all_sheets(path):
+    print("📥 Loading file:", path)  # ✅ Add this as the first line
     try:
-        if path.endswith(".csv"):
-            df = pd.read_csv(path)
-        elif path.endswith(".xls") or path.endswith(".xlsx"):
-            df = pd.read_excel(path)
+        if path.endswith(".xlsx") or path.endswith(".xls"):
+            xls = pd.ExcelFile(path)
+            return {sheet_name.strip(): xls.parse(sheet_name) for sheet_name in xls.sheet_names}
+        elif path.endswith(".csv"):
+            return {"Sheet1": pd.read_csv(path)}
         else:
             st.error(f"Unsupported file type: {path}")
             return None
-
-        st.session_state.project_dataframe = df
-        return df
     except Exception as e:
         st.error(f"❌ Failed to load file: {e}")
         return None
@@ -366,83 +366,110 @@ def discover_project_files(base_dir="PROJECT"):
                 project_files[folder] = files[0]  # Use first matching file
     return project_files
 
-
 # Ask GPT-4 Turbo to analyze the data
-def ask_gpt_about_data(prompt, df):
-    from collections import Counter
+def ask_gpt_about_data(prompt, sheets_dict):
+    def summarize_dataframe(df):
+        col_types = {col: str(df[col].dtype) for col in df.columns}
+        col_values = {}
+        for col in df.columns:
+            try:
+                col_values[col] = {
+                    "value_counts": df[col].value_counts(dropna=False).to_dict(),
+                    "dtype": str(df[col].dtype),
+                    "sample": df[col].dropna().astype(str).unique().tolist()[:10]
+                }
+            except Exception as e:
+                col_values[col] = f"Could not summarize: {e}"
+        return col_types, col_values
 
-    # Step 1: Summarize the DataFrame
-    col_types = {col: str(df[col].dtype) for col in df.columns}
-    col_values = {}
-    for col in df.columns:
-        try:
-            col_values[col] = {
-                "value_counts": df[col].value_counts(dropna=False).to_dict(),
-                "dtype": str(df[col].dtype),
-                "sample": df[col].dropna().astype(str).unique().tolist()[:10]
-            }
-        except Exception as e:
-            col_values[col] = f"Could not summarize: {e}"
-
-    user_content = f"""
-User prompt: {prompt}
-
-Column Types:
-{col_types}
-
-Column Summaries:
-{col_values}
-"""
-
-    # Step 2: Add special behavior for briefings
-    if any(word in prompt.lower() for word in ["briefing", "readiness review", "mission summary", "overview"]):
-        user_content += "\n\nThe user is requesting a formal project overview briefing."
-
-    # ✅ Step 3: Define system_msg BEFORE using it
     system_msg = {
         "role": "system",
         "content": (
-            "When the user asks how many requirements relate to a keyword (e.g. power), search all string columns using a case-insensitive contains match."
-            "Return the count of matching rows and the column(s) where they appeared."
-            "You are a professional aerospace project analyst embedded in a Streamlit app. "
-            "You are an AI Mission Analyst embedded within a United States Space Force operational environment. "
-            "You analyze project requirement data and generate clear, formal briefings suitable for readiness reviews, command updates, and flight recertification briefings. "
-            "Maintain a tone that is disciplined, concise, technically accurate, and focused on operational impact. "
-            "You have access to a DataFrame that includes engineering, verification, and requirement tracking data. "
-            "If the user's question cannot be answered from the available data, "
-            "politely say: 'I'm sorry, I couldn't find that information in the current project data.' "
-            "If the user asks for a project overview, respond with a structured and formal briefing that includes metrics and counts:\n"
-            "- Overview\n- Metrics\n- Risk Considerations\n- Pending Requirement Changes\n- Charts (use [RENDER_PIE:<column name>] if appropriate)\n- Recommendations\n"
-            "When responding with a chart, use [RENDER_PIE:<column>] or [RENDER_BAR:<column>] to trigger a chart render."
-            "Briefings should be mission-focused. Avoid overly casual phrasing. Always consider risk posture, verification status, and interface readiness."
-            "To indicate overall risk posture or mission readiness, include a tag like [RISK_FLAG:GREEN], [RISK_FLAG:YELLOW], or [RISK_FLAG:RED] based on your analysis."
-            "Do not explain how you reasoned it out. Just present the formal output.\n"
-            "To export filtered data, include [EXPORT_CSV:<label>] in your response."
+        "You are a professional aerospace project analyst embedded in a Streamlit app. "
+        "You analyze Excel data across multiple sheets. When the user enters a prompt, you:\n"
+        "- Search ALL sheets\n"
+        "- Review string columns in each sheet\n"
+        "- If the prompt seems like a keyword search (e.g. 'angel', 'tolerance', 'power'), "
+        "search for that word in all string columns and report matches per column per sheet\n"
+        "- If the prompt is asking for a project overview, generate a mission-style formal briefing\n"
+        "- Use chart triggers like [RENDER_PIE:<col>] or export triggers like [EXPORT_CSV:<label>]\n"
+        "- If no data matches, say so clearly"
+        "When the user asks how many requirements relate to a keyword (e.g. power), search all string columns using a case-insensitive contains match."
+        "Return the count of matching rows and the column(s) where they appeared."
+        "You are an AI Mission Analyst embedded within a United States Space Force operational environment. "
+        "You analyze project requirement data and generate clear, formal briefings suitable for readiness reviews, command updates, and flight recertification briefings. "
+        "Maintain a tone that is disciplined, concise, technically accurate, and focused on operational impact. "
+        "You have access to a DataFrame that includes engineering, verification, and requirement tracking data. "
+        "If the user's question cannot be answered from the available data, "
+        "politely say: 'I'm sorry, I couldn't find that information in the current project data.' "
+        "If the user asks for a project overview, respond with a structured and formal briefing that includes metrics and counts:\n"
+        "- Overview\n- Metrics\n- Risk Considerations\n- Pending Requirement Changes\n- Charts (use [RENDER_PIE:<column name>] if appropriate)\n- Recommendations\n"
+        "When responding with a chart, use [RENDER_PIE:<column>] or [RENDER_BAR:<column>] to trigger a chart render."
+        "Briefings should be mission-focused. Avoid overly casual phrasing. Always consider risk posture, verification status, and interface readiness."
+        "To indicate overall risk posture or mission readiness, include a tag like [RISK_FLAG:GREEN], [RISK_FLAG:YELLOW], or [RISK_FLAG:RED] based on your analysis."
+        "Do not explain how you reasoned it out. Just present the formal output.\n"
+        "To export filtered data, include [EXPORT_CSV:<label>] in your response."
         )
     }
 
-    # ✅ Step 4: Build chat history from session messages
     chat_history = [system_msg]
-    for msg in st.session_state.get("project_messages", []):
-        if msg["role"] in ["user", "assistant"]:
-            chat_history.append({"role": msg["role"], "content": msg["content"]})
+    print("🧾 Loaded sheets:", list(sheets_dict.keys()))
+    all_responses = []
+    print("📎 Looping over these sheets:", [(k, df.shape if hasattr(df, 'shape') else 'N/A') for k, df in sheets_dict.items()])
+    for sheet_name, df in sheets_dict.items():
+        print(f"📄 Looping into sheet: {sheet_name}")
+        print(f"📋 {sheet_name} shape: {df.shape}")
 
-    # Add the new user input
-    chat_history.append({"role": "user", "content": user_content})
+        if df is None or df.empty:
+            print(f"⚠️ Skipping sheet '{sheet_name}' because it is empty or None")
+            continue
 
-    # ✅ Step 5: Ask GPT and handle errors
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4-turbo",
-            messages=chat_history,
-            temperature=0.3
-        )
-        output = response.choices[0].message.content.strip()
-        print("GPT response:", output)
-        return f"🤖 {output}"
-    except Exception as e:
-        print("GPT ERROR:", e)
-        return f"❌ GPT response failed: {e}"
+        col_types, col_values = summarize_dataframe(df)
+
+        user_content = f"""
+        The user has submitted the following prompt:
+        ---
+        {prompt}
+        ---
+
+        You are analyzing sheet: **{sheet_name}**
+
+        Column Types:
+        {col_types}
+
+        Column Value Samples:
+        {col_values}
+
+        Please search all string-type columns in this sheet for the keyword(s) in the user prompt.
+        Use a case-insensitive match (like .str.contains('angel', case=False)).
+        Report exact matches by column and row count.
+        If there are no matches, say so clearly.
+        """
+
+        try:
+            print(f"🧪 About to process: {sheet_name}")
+            messages = chat_history + [{"role": "user", "content": user_content}]
+            response = client.chat.completions.create(
+                model="gpt-4-turbo",
+                messages=messages,
+                temperature=0.2
+            )
+            output = response.choices[0].message.content.strip()
+
+            print(f"✅ GPT finished processing: {sheet_name}")
+            print(f"🧠 GPT Response from {sheet_name}:\n{output}\n{'-'*40}")
+            all_responses.append((sheet_name, output))
+
+        except Exception as e:
+            print(f"🔥 GPT error in sheet '{sheet_name}' — continuing loop")
+            print(f"❌ {e}")
+
+    # ✅ Final response after ALL sheets processed
+    if all_responses:
+        combined = "\n\n".join(f"📄 **{sheet}**\n{resp}" for sheet, resp in all_responses)
+        return combined
+
+    return "🤖 I'm sorry, I couldn't find that information in any sheet."
 
 def render_bar_chart(counts, title):
     import matplotlib.pyplot as plt
@@ -499,6 +526,20 @@ def render_pie_chart(counts, title):
     href = f'<a href="data:image/png;base64,{b64}" download="{title}.png" target="_blank">📥 Download Chart</a>'
     st.markdown(href, unsafe_allow_html=True)
 
+#########
+def typewriter_effect(text, delay=0.05):
+    placeholder = st.empty()
+    typed_text = ""
+    for char in text:
+        typed_text += char
+        placeholder.markdown(
+            f'<div style="font-size: 24px; font-weight: bold;">{typed_text}</div>',
+            unsafe_allow_html=True
+        )
+        time.sleep(delay)
+
+########
+
 # Discover available project data files
 project_files = discover_project_files()
 
@@ -531,18 +572,28 @@ if valid_project_selected:
 
     # ✅ Load the file + trigger briefing
     project_name = selected_project
-    with st.sidebar:
-        with st.spinner(f"🤖 iRIS AI is analyzing data for **{project_name}**..."):
-            data_path = project_files[selected_project]
-            df = load_default_file(data_path)
+    data_path = project_files[selected_project]
+
+    with st.spinner(""):
+        typewriter_effect("🧠 AI is analyzing your project data...", delay=0.07)
+        sheet_dfs = load_all_sheets(data_path)
+
+            # ✅ Safety check here
+        if sheet_dfs is None:
+            st.error("❌ Failed to load sheets. Check the file format or contents.")
+            st.stop()
+        else:
+            print("🧪 Sheet keys loaded for briefing:", list(sheet_dfs.keys()))
+            st.session_state.project_dataframe = sheet_dfs  # Store dict of sheets
 
             if (
-                df is not None and not df.empty
+                sheet_dfs is not None
+                and len(sheet_dfs) > 0
                 and not st.session_state.get("auto_briefing_rendered", False)
                 and not st.session_state.get("suppress_briefing", False)
             ):
                 auto_prompt = "Provide me a project overview briefing"
-                auto_response = ask_gpt_about_data(auto_prompt, df)
+                auto_response = ask_gpt_about_data(auto_prompt, sheet_dfs)
 
                 if not auto_response or not isinstance(auto_response, str):
                     st.sidebar.error("❌ Failed to generate an auto-briefing response.")
@@ -551,43 +602,39 @@ if valid_project_selected:
                     bar_matches = re.findall(r"\[RENDER_BAR:(.*?)\]", auto_response)
 
                     for chart_title in pie_matches:
-                        chart_title = chart_title.strip()
-                        if chart_title in df.columns:
-                            col_counts = df[chart_title].value_counts()
-                            st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_pie_chart(c, f"Distribution of {t}")
-                            auto_response = auto_response.replace(f"[RENDER_PIE:{chart_title}]", f"📊 Pie chart of **{chart_title}** — see below.")
+                        for sheet_name, df in sheet_dfs.items():
+                            if chart_title in df.columns:
+                                col_counts = df[chart_title].value_counts()
+                                st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_pie_chart(c, f"Distribution of {t}")
+                                auto_response = auto_response.replace(f"[RENDER_PIE:{chart_title}]", f"📊 Pie chart of **{chart_title}** — see below.")
+                                break
 
                     for chart_title in bar_matches:
-                        chart_title = chart_title.strip()
-                        if chart_title in df.columns:
-                            col_counts = df[chart_title].value_counts()
-                            st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_bar_chart(c, f"Bar Chart of {t}")
-                            auto_response = auto_response.replace(f"[RENDER_BAR:{chart_title}]", f"📊 Bar chart of **{chart_title}** — see below.")
+                        for sheet_name, df in sheet_dfs.items():
+                            if chart_title in df.columns:
+                                col_counts = df[chart_title].value_counts()
+                                st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_bar_chart(c, f"Bar Chart of {t}")
+                                auto_response = auto_response.replace(f"[RENDER_BAR:{chart_title}]", f"📊 Bar chart of **{chart_title}** — see below.")
+                                break
 
                     st.session_state.project_messages.append({"role": "user", "content": auto_prompt})
                     st.session_state.project_messages.append({"role": "assistant", "content": auto_response})
                     st.session_state.auto_briefing_rendered = True
                     st.session_state.suppress_briefing = False
 
-
-            # ✅ Display success message in the sidebar
             st.success(f"✅ Analysis of **{project_name}** complete.")
 
 if not valid_project_selected:
     st.info("👈 Please select a project from the sidebar to see a project overview.")
 
-#if df is not None:
-#    st.dataframe(df.head(20))
-#    st.write("📊 Columns:", df.columns.tolist())
-
 prompt = st.chat_input("Ask me anything about your project...")
 if prompt:
     st.session_state.export_results = {}  # 🧹 Clear any previous export previews
     st.session_state.project_messages.append({"role": "user", "content": prompt})
-
+    print("💬 Sheets passed to GPT during chat:", list(st.session_state.project_dataframe.keys()))
     response_text = "I'm here to help."
-    if df is not None:
-        response_text = ask_gpt_about_data(prompt, df)
+    if st.session_state.project_dataframe is not None:
+        response_text = ask_gpt_about_data(prompt, st.session_state.project_dataframe)
         # ✅ Handle CSV export tags from GPT
         # Extract export tags
         export_matches = re.findall(r"\[EXPORT_CSV:(.*?)\]", response_text)
