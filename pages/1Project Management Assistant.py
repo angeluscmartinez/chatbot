@@ -30,6 +30,12 @@ if not api_key:
     st.error("❌ OpenAI API key not found in Streamlit secrets or environment variables.")
     st.stop()
 
+# ✅ Safe rerun trigger (must be last)
+if st.session_state.get("do_rerun", False):
+    st.session_state.do_rerun = False
+    st.rerun()  # or st.rerun() if you're using v1.28+
+
+
 # ✅ Initialize the OpenAI client
 client = OpenAI(api_key=api_key)
 
@@ -179,6 +185,8 @@ if "charts_to_render" not in st.session_state:
     st.session_state.charts_to_render = []
 if "export_results" not in st.session_state:
     st.session_state.export_results = {}
+if "clear_action" not in st.session_state:
+    st.session_state.clear_action = None
 
 def get_filtered_dataframe(label, df):
     prompt = f"""
@@ -426,25 +434,54 @@ def ask_gpt_about_data(prompt, sheets_dict):
 
         col_types, col_values = summarize_dataframe(df)
 
-        user_content = f"""
-        The user has submitted the following prompt:
-        ---
-        {prompt}
-        ---
+        # ✅ Determine if it's a strategic prompt
+        strategic_keywords = ["overview", "risk", "readiness", "posture", "status", "summary", "recommendation", "assessment"]
+        is_strategic = any(kw in prompt.lower() for kw in strategic_keywords)
+        print(f"📊 Strategic analysis mode: {is_strategic}")
 
-        You are analyzing sheet: **{sheet_name}**
+        if is_strategic:
+            user_content = f"""
+            The user has submitted the following strategic prompt:
+            ---
+            {prompt}
+            ---
 
-        Column Types:
-        {col_types}
+            You are analyzing sheet: **{sheet_name}**
 
-        Column Value Samples:
-        {col_values}
+            Please provide a high-level mission-style analysis focused on:
+            - Risk posture
+            - Verification completion
+            - Requirement readiness
+            - Open issues or red flags
 
-        Please search all string-type columns in this sheet for the keyword(s) in the user prompt.
-        Use a case-insensitive match (like .str.contains('angel', case=False)).
-        Report exact matches by column and row count.
-        If there are no matches, say so clearly.
-        """
+            Use the schema and sample values below to inform your response.
+
+            Column Types:
+            {col_types}
+
+            Column Value Samples:
+            {col_values}
+            """
+        else:
+            user_content = f"""
+            The user has submitted the following prompt:
+            ---
+            {prompt}
+            ---
+
+            You are analyzing sheet: **{sheet_name}**
+
+            Column Types:
+            {col_types}
+
+            Column Value Samples:
+            {col_values}
+
+            Please search all string-type columns in this sheet for the keyword(s) in the user prompt.
+            Use a case-insensitive match (like .str.contains(..., case=False)).
+            Report exact matches by column and row count.
+            If there are no matches, say so clearly.
+            """
 
         try:
             print(f"🧪 About to process: {sheet_name}")
@@ -538,6 +575,39 @@ def typewriter_effect(text, delay=0.05):
         )
         time.sleep(delay)
 
+def get_combined_dataframe(sheet_dict):
+    frames = []
+    for name, df in sheet_dict.items():
+        if isinstance(df, pd.DataFrame):
+            df = df.copy()
+            df["__Sheet__"] = name  # Tag origin sheet
+            frames.append(df)
+    return pd.concat(frames, ignore_index=True) if frames else None
+
+def process_chart_tags(response_text, dataframe_dict):
+    pie_matches = re.findall(r"\[RENDER_PIE:(.*?)\]", response_text)
+    bar_matches = re.findall(r"\[RENDER_BAR:(.*?)\]", response_text)
+
+    for chart_title in pie_matches:
+        chart_title = chart_title.strip()
+        for sheet_name, df in dataframe_dict.items():
+            if df is not None and chart_title in df.columns:
+                col_counts = df[chart_title].value_counts()
+                st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_pie_chart(c, f"Distribution of {t}")
+                response_text = response_text.replace(f"[RENDER_PIE:{chart_title}]", f"📊 Pie chart of **{chart_title}** — see below.")
+                break
+
+    for chart_title in bar_matches:
+        chart_title = chart_title.strip()
+        for sheet_name, df in dataframe_dict.items():
+            if df is not None and chart_title in df.columns:
+                col_counts = df[chart_title].value_counts()
+                st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_bar_chart(c, f"Bar Chart of {t}")
+                response_text = response_text.replace(f"[RENDER_BAR:{chart_title}]", f"📊 Bar chart of **{chart_title}** — see below.")
+                break
+
+    return response_text
+
 ########
 
 # Discover available project data files
@@ -575,8 +645,8 @@ if valid_project_selected:
     data_path = project_files[selected_project]
 
     with st.spinner(""):
-        typewriter_effect("🧠 AI is analyzing your project data...", delay=0.07)
         sheet_dfs = load_all_sheets(data_path)
+        typewriter_effect("🧠 AI is analyzing your project data...", delay=0.07)
 
             # ✅ Safety check here
         if sheet_dfs is None:
@@ -598,25 +668,10 @@ if valid_project_selected:
                 if not auto_response or not isinstance(auto_response, str):
                     st.sidebar.error("❌ Failed to generate an auto-briefing response.")
                 else:
-                    pie_matches = re.findall(r"\[RENDER_PIE:(.*?)\]", auto_response)
-                    bar_matches = re.findall(r"\[RENDER_BAR:(.*?)\]", auto_response)
+                    # ✅ Process any [RENDER_PIE] / [RENDER_BAR] tags inside auto_response
+                    auto_response = process_chart_tags(auto_response, st.session_state.project_dataframe)
 
-                    for chart_title in pie_matches:
-                        for sheet_name, df in sheet_dfs.items():
-                            if chart_title in df.columns:
-                                col_counts = df[chart_title].value_counts()
-                                st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_pie_chart(c, f"Distribution of {t}")
-                                auto_response = auto_response.replace(f"[RENDER_PIE:{chart_title}]", f"📊 Pie chart of **{chart_title}** — see below.")
-                                break
-
-                    for chart_title in bar_matches:
-                        for sheet_name, df in sheet_dfs.items():
-                            if chart_title in df.columns:
-                                col_counts = df[chart_title].value_counts()
-                                st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_bar_chart(c, f"Bar Chart of {t}")
-                                auto_response = auto_response.replace(f"[RENDER_BAR:{chart_title}]", f"📊 Bar chart of **{chart_title}** — see below.")
-                                break
-
+                    # ✅ Append the messages after processing
                     st.session_state.project_messages.append({"role": "user", "content": auto_prompt})
                     st.session_state.project_messages.append({"role": "assistant", "content": auto_response})
                     st.session_state.auto_briefing_rendered = True
@@ -631,37 +686,51 @@ prompt = st.chat_input("Ask me anything about your project...")
 if prompt:
     st.session_state.export_results = {}  # 🧹 Clear any previous export previews
     st.session_state.project_messages.append({"role": "user", "content": prompt})
-    print("💬 Sheets passed to GPT during chat:", list(st.session_state.project_dataframe.keys()))
-    response_text = "I'm here to help."
+
+    response_text = "I'm here to help."  # Default in case something goes wrong
+
     if st.session_state.project_dataframe is not None:
         response_text = ask_gpt_about_data(prompt, st.session_state.project_dataframe)
-        # ✅ Handle CSV export tags from GPT
-        # Extract export tags
-        export_matches = re.findall(r"\[EXPORT_CSV:(.*?)\]", response_text)
 
+        # ✅ Handle CSV export tags
+        export_matches = re.findall(r"\[EXPORT_CSV:(.*?)\]", response_text)
         for label in export_matches:
             label = label.strip()
-            filtered_df = get_filtered_dataframe(label, df)
-
+            filtered_df = get_filtered_dataframe(label, get_combined_dataframe(st.session_state.project_dataframe))
             if filtered_df is not None and not filtered_df.empty:
                 st.session_state.export_results[label] = filtered_df
             else:
-                st.session_state.export_results[label] = df  # fallback
+                st.session_state.export_results[label] = get_combined_dataframe(st.session_state.project_dataframe)
 
-            # Update the assistant's response
-            if f"[EXPORT_CSV:{label}]" in response_text:
-                response_text = response_text.replace(
-                    f"[EXPORT_CSV:{label}]",
-                    f"📥 Preview your download below **{label}** — if it looks correct click download."
-                )
+            response_text = response_text.replace(
+                f"[EXPORT_CSV:{label}]",
+                f"📥 Preview your download below **{label}** — if it looks correct click download."
+            )
 
-        # ✅ Detect and render charts from manual prompt
+        # ✅ Detect and render charts
         pie_matches = re.findall(r"\[RENDER_PIE:(.*?)\]", response_text)
         bar_matches = re.findall(r"\[RENDER_BAR:(.*?)\]", response_text)
-        
-        # ✅ Handle RISK_FLAG tags from GPT
-        risk_flag_match = re.search(r"\[RISK_FLAG:(GREEN|YELLOW|RED)\]", response_text, re.IGNORECASE)
 
+        for chart_title in pie_matches:
+            chart_title = chart_title.strip()
+            for sheet_name, sheet_df in st.session_state.project_dataframe.items():
+                if sheet_df is not None and chart_title in sheet_df.columns:
+                    col_counts = sheet_df[chart_title].value_counts()
+                    st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_pie_chart(c, f"Distribution of {t}")
+                    response_text = response_text.replace(f"[RENDER_PIE:{chart_title}]", f"📊 Pie chart of **{chart_title}** — see below.")
+                    break
+
+        for chart_title in bar_matches:
+            chart_title = chart_title.strip()
+            for sheet_name, sheet_df in st.session_state.project_dataframe.items():
+                if sheet_df is not None and chart_title in sheet_df.columns:
+                    col_counts = sheet_df[chart_title].value_counts()
+                    st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_bar_chart(c, f"Bar Chart of {t}")
+                    response_text = response_text.replace(f"[RENDER_BAR:{chart_title}]", f"📊 Bar chart of **{chart_title}** — see below.")
+                    break
+
+        # ✅ Risk status tag
+        risk_flag_match = re.search(r"\[RISK_FLAG:(GREEN|YELLOW|RED)\]", response_text, re.IGNORECASE)
         if risk_flag_match:
             color = risk_flag_match.group(1).upper()
             flag_map = {
@@ -670,8 +739,6 @@ if prompt:
                 "RED": "🔴 Readiness Status: **NO GO** (High Risk)"
             }
             response_text = response_text.replace(risk_flag_match.group(0), flag_map[color])
-
-            # Optional: show in sidebar too
             if color == "RED":
                 st.sidebar.error("🔴 Readiness: NO GO")
             elif color == "YELLOW":
@@ -679,56 +746,32 @@ if prompt:
             elif color == "GREEN":
                 st.sidebar.success("🔵 Readiness: GO")
 
-        # ✅ Clear any previous chart if this response doesn't contain one
         if not pie_matches and not bar_matches:
             st.session_state.last_chart = None
 
-
-        for chart_title in pie_matches:
-            chart_title = chart_title.strip()
-            if chart_title in df.columns:
-                col_counts = df[chart_title].value_counts()
-                st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_pie_chart(c, f"Distribution of {t}")
-                response_text = response_text.replace(f"[RENDER_PIE:{chart_title}]", f"📊 Pie chart of **{chart_title}** — see below.")
-
-        for chart_title in bar_matches:
-            chart_title = chart_title.strip()
-            if chart_title in df.columns:
-                col_counts = df[chart_title].value_counts()
-                st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_bar_chart(c, f"Bar Chart of {t}")
-                response_text = response_text.replace(f"[RENDER_BAR:{chart_title}]", f"📊 Bar chart of **{chart_title}** — see below.")
-
-    # ✅ Append GPT response to the chat history
+    # ✅ Append GPT response
     st.session_state.project_messages.append({
         "role": "assistant",
         "content": response_text
     })
 
 # Show full chat history in order
+# Show full chat history in order
 for i, message in enumerate(st.session_state.project_messages):
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-        # ✅ If this is the most recent assistant message, show chart or export
-        if (
-            message["role"] == "assistant"
-            and i == len(st.session_state.project_messages) - 1
-        ):
-            if st.session_state.get("last_chart"):
-                st.divider()
-                st.session_state.last_chart()
+# ✅ Move this outside the loop:
+if st.session_state.get("last_chart"):
+    st.divider()
+    st.session_state.last_chart()
 
-                if st.button("🧹 Clear Chart", key=f"clear_chart_{i}"):
-                    st.session_state.last_chart = None
-                    st.rerun()
-st.sidebar.markdown("---")
+if st.button("🧹 Clear Chart", key="clear_chart"):
+    st.session_state.clear_action = "chart"
+
 if st.sidebar.button("🧹 Clear Chat History", key="clear_chat"):
-    st.session_state.project_messages.clear()
-    st.session_state.export_results = {}
-    st.session_state.last_chart = None
-    st.session_state.auto_briefing_rendered = True  # Prevent auto rerun
-    st.session_state.suppress_briefing = True
-    st.rerun()
+    st.session_state.clear_action = "chat"
+
 # 🔽 Show all export previews at the bottom
 if st.session_state.get("export_results"):
     for label, result_df in st.session_state.export_results.items():
@@ -736,3 +779,23 @@ if st.session_state.get("export_results"):
             st.dataframe(result_df.head(10))
             st.markdown(f"Showing up to 10 rows of **{len(result_df)}** total.")
             export_dataframe_to_csv(result_df, filename=f"{label.replace(' ', '_').lower()}.csv")
+# ✅ Safe rerun trigger outside control flow
+if st.session_state.get("do_rerun"):
+    st.session_state.do_rerun = False  # Reset flag
+    st.rerun()
+# ✅ Safe rerun trigger (MUST be last in script)
+if st.session_state.get("clear_action"):
+    clear_action = st.session_state.clear_action
+    st.session_state.clear_action = None  # reset flag
+
+    if clear_action == "chart":
+        st.session_state.last_chart = None
+
+    elif clear_action == "chat":
+        st.session_state.project_messages.clear()
+        st.session_state.export_results = {}
+        st.session_state.last_chart = None
+        st.session_state.auto_briefing_rendered = True
+        st.session_state.suppress_briefing = True
+
+    st.rerun()
