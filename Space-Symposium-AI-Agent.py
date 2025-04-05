@@ -236,7 +236,7 @@ if "file_uploaded" not in st.session_state:
 
 # Embed URLs
 calendly_embed_url = "https://calendly.com/angel-martinez-celeris-systems/meeting-request?embed_domain=www.celeris-systems.com&embed_type=Inline"
-power_bi_embed_url = "https://app.powerbi.com/view?r=eyJrIjoiNmMwOTVmMzAtNDlkZS00OGE0LWIwNzEtZDJiMDYwMGEwZjlmIiwidCI6ImI4MzcyZThhLTJmZDYtNDYxYi04ZjY2LTk5MGNiNmNlMjcyNiIsImMiOjZ9"
+power_bi_embed_url = "https://app.powerbi.com/view?r=eyJrIjoiNGFkM2EzZTUtNDdlZi00MmFiLWJlMzMtM2ZjNjg0Y2U5NGJiIiwidCI6ImI4MzcyZThhLTJmZDYtNDYxYi04ZjY2LTk5MGNiNmNlMjcyNiIsImMiOjZ9"
 power_bi_ml_embed_url = "https://app.powerbi.com/view?r=eyJrIjoiNTA2NTlkMzctYWJhOS00ZjY1LWE1ZTItNTM5NmJlMzA1ZTI0IiwidCI6ImI4MzcyZThhLTJmZDYtNDYxYi04ZjY2LTk5MGNiNmNlMjcyNiIsImMiOjZ9"
 
 # File Processing Function
