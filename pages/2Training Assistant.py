@@ -13,8 +13,8 @@ st.set_page_config(page_title="iRIS Training Assistant", layout="wide")
 
 TRAINING_DIR = "training"
 SUPPORTED_TYPES = [".pdf"]
-QUESTIONS_PER_SESSION = 2
-PASSING_SCORE = 1
+QUESTIONS_PER_SESSION = 10
+PASSING_SCORE = 7
 
 client = OpenAI(api_key=st.secrets["API_key"])
 
