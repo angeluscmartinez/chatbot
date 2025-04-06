@@ -408,7 +408,8 @@ def ask_gpt_about_data(prompt, sheets_dict):
         "Briefings should be mission-focused. Avoid overly casual phrasing. Always consider risk posture, verification status, and interface readiness."
         "To indicate overall risk posture or mission readiness, include a tag like [RISK_FLAG:GREEN], [RISK_FLAG:YELLOW], or [RISK_FLAG:RED] based on your analysis."
         "Do not explain how you reasoned it out. Just present the formal output.\n"
-        "To export filtered data, include [EXPORT_CSV:<label>] in your response."
+        "To export filtered data, include [EXPORT_CSV:<label>] in your response. "
+        "To render a cumulative trend chart for a date column (like completed requirements over time), use [RENDER_LINE:<column name> cumulative]."
         )
     }
 
@@ -555,6 +556,38 @@ def render_pie_chart(counts, title):
     href = f'<a href="data:image/png;base64,{b64}" download="{title}.png" target="_blank">📥 Download Chart</a>'
     st.markdown(href, unsafe_allow_html=True)
 
+def render_line_chart(series, title, cumulative=False):
+    import matplotlib.pyplot as plt
+    import io
+    import base64
+
+    series = series.sort_index()
+
+    if cumulative:
+        series = series.cumsum()
+        title += " (Cumulative)"
+
+    st.subheader("📈 " + title)
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    print("📅 Line chart series head:\n", series.head(10))
+    print("🧮 Is cumulative:", cumulative)
+    series.plot(ax=ax, marker="o")
+    ax.set_title(title)
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Count")
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png", bbox_inches="tight")
+    buf.seek(0)
+    st.image(buf, caption=title, use_container_width=False)
+
+    b64 = base64.b64encode(buf.read()).decode()
+    href = f'<a href="data:image/png;base64,{b64}" download="{title}.png" target="_blank">📥 Download Chart</a>'
+    st.markdown(href, unsafe_allow_html=True)
+
 #########
 def typewriter_effect(text, delay=0.05):
     placeholder = st.empty()
@@ -579,26 +612,100 @@ def get_combined_dataframe(sheet_dict):
 def process_chart_tags(response_text, dataframe_dict):
     pie_matches = re.findall(r"\[RENDER_PIE:(.*?)\]", response_text)
     bar_matches = re.findall(r"\[RENDER_BAR:(.*?)\]", response_text)
+    line_matches = re.findall(r"\[RENDER_LINE:(.*?)\]", response_text)
+
+    st.session_state.charts_to_render = []
+
+    def make_pie_chart(counts, title):
+        return lambda: render_pie_chart(counts, f"Distribution of {title}")
+
+    def make_bar_chart(counts, title):
+        return lambda: render_bar_chart(counts, f"Bar Chart of {title}")
+
+    def find_column(df, requested_title):
+        for col in df.columns:
+            if col.strip().lower() == requested_title.strip().lower():
+                return col
+        return None
 
     for chart_title in pie_matches:
-        chart_title = chart_title.strip()
+        chart_title_clean = chart_title.strip()
+        found = False
         for sheet_name, df in dataframe_dict.items():
-            if df is not None and chart_title in df.columns:
-                col_counts = df[chart_title].value_counts()
-                st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_pie_chart(c, f"Distribution of {t}")
-                response_text = response_text.replace(f"[RENDER_PIE:{chart_title}]", f"📊 Pie chart of **{chart_title}** — see below.")
-                break
+            if df is not None:
+                matched_col = find_column(df, chart_title_clean)
+                if matched_col:
+                    col_counts = df[matched_col].dropna().value_counts()
+                    if not col_counts.empty:
+                        st.session_state.charts_to_render.append(make_pie_chart(col_counts, matched_col))
+                        found = True
+                        break
+        if found:
+            response_text = response_text.replace(f"[RENDER_PIE:{chart_title}]", f"📊 Pie chart of **{chart_title}** — see below.")
+
+    for chart_title in bar_matches:
+        chart_title_clean = chart_title.strip()
+        found = False
+        for sheet_name, df in dataframe_dict.items():
+            if df is not None:
+                matched_col = find_column(df, chart_title_clean)
+                if matched_col:
+                    col_counts = df[matched_col].dropna().value_counts()
+                    if not col_counts.empty:
+                        st.session_state.charts_to_render.append(make_bar_chart(col_counts, matched_col))
+                        found = True
+                        break
+        if found:
+            response_text = response_text.replace(f"[RENDER_BAR:{chart_title}]", f"📊 Bar chart of **{chart_title}** — see below.")
+    def make_line_chart(series, title, cumulative=False):
+        return lambda: render_line_chart(series, f"Line Chart of {title}", cumulative=cumulative)
+
+    line_matches = re.findall(r"\[RENDER_LINE:(.*?)\]", response_text)
+
+    for chart_title in line_matches:
+        chart_title_clean = chart_title.strip()
+        cumulative = "cumulative" in chart_title_clean.lower()
+        chart_title_clean = chart_title_clean.replace("cumulative", "", 1).strip()
+
+        found = False
+        for sheet_name, df in dataframe_dict.items():
+            if df is not None:
+                matched_col = find_column(df, chart_title_clean)
+                if matched_col:
+                    col_data = df[matched_col].dropna()
+                    try:
+                        date_series = pd.to_datetime(col_data, errors='coerce').dropna()
+                        trend = date_series.dt.to_period("D").value_counts().sort_index()
+                        trend.index = trend.index.to_timestamp()
+
+                        if not trend.empty:
+                            st.session_state.charts_to_render.append(
+                                lambda s=trend, t=matched_col, cum=cumulative: render_line_chart(s, f"Line Chart of {t}", cumulative=cum)
+                            )
+                            response_text = response_text.replace(
+                                f"[RENDER_LINE:{chart_title}]",
+                                f"📈 Line chart of **{chart_title_clean}** — see below."
+                            )
+                            found = True
+                            break
+                    except Exception as e:
+                        print(f"⚠️ Could not parse {matched_col} as dates: {e}")
+        if not found:
+            print(f"❌ Could not generate line chart for '{chart_title_clean}'")
+
 
     for chart_title in bar_matches:
         chart_title = chart_title.strip()
         for sheet_name, df in dataframe_dict.items():
             if df is not None and chart_title in df.columns:
                 col_counts = df[chart_title].value_counts()
-                st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_bar_chart(c, f"Bar Chart of {t}")
+                # ✅ Append to chart list
+                st.session_state.charts_to_render.append(lambda c=col_counts, t=chart_title: render_bar_chart(c, f"Bar Chart of {t}"))
                 response_text = response_text.replace(f"[RENDER_BAR:{chart_title}]", f"📊 Bar chart of **{chart_title}** — see below.")
                 break
 
     return response_text
+
 
 ########
 
@@ -647,7 +754,9 @@ if valid_project_selected:
         else:
             print("🧪 Sheet keys loaded for briefing:", list(sheet_dfs.keys()))
             st.session_state.project_dataframe = sheet_dfs  # Store dict of sheets
+            st.session_state.combined_df = get_combined_dataframe(sheet_dfs)
 
+            # ✅ Only run auto briefing once per project — cache it
             if (
                 sheet_dfs is not None
                 and len(sheet_dfs) > 0
@@ -655,7 +764,36 @@ if valid_project_selected:
                 and not st.session_state.get("suppress_briefing", False)
             ):
                 auto_prompt = "Provide me a project overview briefing"
-                auto_response = ask_gpt_about_data(auto_prompt, sheet_dfs)
+
+                # 🧠 Cache the result per project name
+                if "briefing_cache" not in st.session_state:
+                    st.session_state.briefing_cache = {}
+
+                if project_name not in st.session_state.briefing_cache:
+                    auto_response = ask_gpt_about_data(auto_prompt, sheet_dfs)
+                    st.session_state.briefing_cache[project_name] = auto_response
+                else:
+                    auto_response = st.session_state.briefing_cache[project_name]
+
+                if not auto_response or not isinstance(auto_response, str):
+                    st.sidebar.error("❌ Failed to generate an auto-briefing response.")
+                else:
+                    # 🧠 Force-inject a pie chart for Requirement Type at the end if it's missing
+                    # 🧼 Remove all pie and bar tags to control the visuals
+                    auto_response = re.sub(r"\[RENDER_(PIE|BAR):.*?\]", "", auto_response)
+
+                    # ✅ Inject both custom chart tags
+                    auto_response += "\n\n[RENDER_PIE:Requirement Type]"
+                    auto_response += "\n\n[RENDER_BAR:Verification Method]"
+
+                    # 🧠 Process chart tags (this renders + replaces them in text)
+                    auto_response = process_chart_tags(auto_response, st.session_state.project_dataframe)
+
+                    # ✅ Save messages and flags
+                    st.session_state.project_messages.append({"role": "user", "content": auto_prompt})
+                    st.session_state.project_messages.append({"role": "assistant", "content": auto_response})
+                    st.session_state.auto_briefing_rendered = True
+                    st.session_state.suppress_briefing = False
 
                 if not auto_response or not isinstance(auto_response, str):
                     st.sidebar.error("❌ Failed to generate an auto-briefing response.")
@@ -676,52 +814,27 @@ if not valid_project_selected:
 
 prompt = st.chat_input("Ask me anything about your project...")
 if prompt:
-    st.session_state.export_results = {}  # 🧹 Clear any previous export previews
+    st.session_state.export_results = {}
     st.session_state.project_messages.append({"role": "user", "content": prompt})
-
-    response_text = "I'm here to help."  # Default in case something goes wrong
 
     if st.session_state.project_dataframe is not None:
         response_text = ask_gpt_about_data(prompt, st.session_state.project_dataframe)
 
-        # ✅ Handle CSV export tags
+        # ✅ Handle chart trigger tags
+        response_text = process_chart_tags(response_text, st.session_state.project_dataframe)
+
+        # ✅ Handle export tags
         export_matches = re.findall(r"\[EXPORT_CSV:(.*?)\]", response_text)
         for label in export_matches:
             label = label.strip()
-            filtered_df = get_filtered_dataframe(label, get_combined_dataframe(st.session_state.project_dataframe))
-            if filtered_df is not None and not filtered_df.empty:
-                st.session_state.export_results[label] = filtered_df
-            else:
-                st.session_state.export_results[label] = get_combined_dataframe(st.session_state.project_dataframe)
-
+            filtered_df = get_filtered_dataframe(label, st.session_state.combined_df)
+            st.session_state.export_results[label] = filtered_df if filtered_df is not None and not filtered_df.empty else st.session_state.combined_df
             response_text = response_text.replace(
                 f"[EXPORT_CSV:{label}]",
                 f"📥 Preview your download below **{label}** — if it looks correct click download."
             )
 
-        # ✅ Detect and render charts
-        pie_matches = re.findall(r"\[RENDER_PIE:(.*?)\]", response_text)
-        bar_matches = re.findall(r"\[RENDER_BAR:(.*?)\]", response_text)
-
-        for chart_title in pie_matches:
-            chart_title = chart_title.strip()
-            for sheet_name, sheet_df in st.session_state.project_dataframe.items():
-                if sheet_df is not None and chart_title in sheet_df.columns:
-                    col_counts = sheet_df[chart_title].value_counts()
-                    st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_pie_chart(c, f"Distribution of {t}")
-                    response_text = response_text.replace(f"[RENDER_PIE:{chart_title}]", f"📊 Pie chart of **{chart_title}** — see below.")
-                    break
-
-        for chart_title in bar_matches:
-            chart_title = chart_title.strip()
-            for sheet_name, sheet_df in st.session_state.project_dataframe.items():
-                if sheet_df is not None and chart_title in sheet_df.columns:
-                    col_counts = sheet_df[chart_title].value_counts()
-                    st.session_state.last_chart = lambda c=col_counts, t=chart_title: render_bar_chart(c, f"Bar Chart of {t}")
-                    response_text = response_text.replace(f"[RENDER_BAR:{chart_title}]", f"📊 Bar chart of **{chart_title}** — see below.")
-                    break
-
-        # ✅ Risk status tag
+        # ✅ Handle risk flags
         risk_flag_match = re.search(r"\[RISK_FLAG:(GREEN|YELLOW|RED)\]", response_text, re.IGNORECASE)
         if risk_flag_match:
             color = risk_flag_match.group(1).upper()
@@ -731,39 +844,59 @@ if prompt:
                 "RED": "🔴 Readiness Status: **NO GO** (High Risk)"
             }
             response_text = response_text.replace(risk_flag_match.group(0), flag_map[color])
-            if color == "RED":
-                st.sidebar.error("🔴 Readiness: NO GO")
-            elif color == "YELLOW":
-                st.sidebar.warning("🟡 Readiness: CAUTION")
-            elif color == "GREEN":
-                st.sidebar.success("🔵 Readiness: GO")
+            getattr(st.sidebar, {
+                "RED": "error",
+                "YELLOW": "warning",
+                "GREEN": "success"
+            }[color])("Readiness: " + flag_map[color].split(":")[1])
 
-        if not pie_matches and not bar_matches:
-            st.session_state.last_chart = None
+        st.session_state.project_messages.append({"role": "assistant", "content": response_text})
 
-    # ✅ Append GPT response
-    st.session_state.project_messages.append({
-        "role": "assistant",
-        "content": response_text
-    })
-
-# Show full chat history in order
+# ✅ Display chat messages and render charts if needed
+# ✅ Display chat messages and render charts if needed
 for i, message in enumerate(st.session_state.project_messages):
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-        # ✅ If this is the most recent assistant message, show chart or export
-        if (
-            message["role"] == "assistant"
-            and i == len(st.session_state.project_messages) - 1
-        ):
-            if st.session_state.get("last_chart"):
-                st.divider()
-                st.session_state.last_chart()
+        is_latest = i == len(st.session_state.project_messages) - 1
 
-                if st.button("🧹 Clear Chart", key=f"clear_chart_{i}"):
-                    st.session_state.last_chart = None
-                    st.rerun()
+        # ✅ Only render charts for the latest assistant message
+        if is_latest and message["role"] == "assistant":
+            for j, chart_fn in enumerate(st.session_state.charts_to_render):
+                chart_fn()
+                if j < len(st.session_state.charts_to_render) - 1:
+                    st.markdown("---")
+
+        # ✅ Auto-overview charts (e.g. pie/bar default briefing)
+        is_auto_overview = (
+            st.session_state.get("auto_briefing_rendered", False)
+            and message["role"] == "assistant"
+            and st.session_state.project_messages[i - 1]["content"].strip().lower() == "provide me a project overview briefing"
+        )
+
+        # ✅ 🚫 Skip fallback chart rendering if charts were already triggered by tags
+        if (
+            is_latest
+            and is_auto_overview
+            and st.session_state.get("combined_df") is not None
+            and not st.session_state.charts_to_render  # <- the key line to prevent duplicates
+        ):
+            df = st.session_state.combined_df
+
+            if "Requirement Type" in df.columns and "Verification Method" in df.columns:
+                st.divider()
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    pie_counts = df["Requirement Type"].dropna().value_counts()
+                    if not pie_counts.empty:
+                        render_pie_chart(pie_counts, "Distribution of Requirement Type")
+
+                with col2:
+                    bar_counts = df["Verification Method"].dropna().value_counts()
+                    if not bar_counts.empty:
+                        render_bar_chart(bar_counts, "Bar Chart of Verification Method")
+
 st.sidebar.markdown("---")
 if st.sidebar.button("🧹 Clear Chat History", key="clear_chat"):
     st.session_state.project_messages.clear()
