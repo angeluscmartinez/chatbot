@@ -164,4 +164,64 @@ Norm Christensen serves as a Strategic Advisor for Karman Space & Defense. Mr. C
 
 Mr. Christensen assisted with the initial formation of Karman and in December of 2020, AAE proudly joined the team. “Karman brings together an already trusted group of best-in-class suppliers with proven track records, capable of delivering “tip to tail” end-item content to our customers. This powerful approach also allows us to leverage our small business agility and responsiveness using Karman’s large business resources of facilities, equipment and more than 800 skilled team members.” commented Mr. Christensen.  Mr. Christensen is a member of the Karman Board of Directors.
 
+Robbie is the CEO and a co-founder at Sedaro, a digital twin software and solutions provider for aerospace and defense. Robbie leads product strategy for the Sedaro Digital Twin Platform and for Sedaro’s open-source software and standards. These technologies unlock a new, ecosystem-based approach to aerospace and defense modeling and a future that will be defined by increasingly complex and distributed systems.
+
+Prior to founding Sedaro, Robbie was the first employee at Ibeos, where he led the development of instruments and subsystems for spacecraft headed to LEO, GEO, and the Moon. During his PhD, Robbie built small satellite instruments, developed simulation software at US and German government labs, and installed space science instruments in Antarctica. Robbie received both his bachelor’s degree and PhD in Aerospace Engineering from Virginia Tech.
+
+Mark Godine 
+Digital Twins and Scalable Cloud Simulation Sedaro
+Virginia Tech
+Washington, District of Columbia, United States  Experienced Systems Engineer with a demonstrated history of working in the Defense & Space industry. Experienced in satellite operations, flight dynamics, and mission analysis. Currently looking to develop business and relationships between Sedaro and the government/contractors in the US National Programs sectors.
+
+Lael Cox
+Management consultant with over 15 years experience addressing strategy development and implementation, project management, product development, process improvement, and advanced analytics in commercial, federal, and non-profit sectors.
+
+Sebastian Welsh, Sedaro’s co-founder and CTO, said satellite edge autonomy is “essential for sustained commercial success and strategic advantage in space.”
+“The proliferation of constellations in low Earth orbit has driven increasingly automated approaches to satellite mission ops from the ground,” Welsh said April 3 in a news release. “A highly congested, contested, and dynamic space operating environment demands that we take the next step and bring this automation to the edge.” Sedaro delivers mission simulation at scale for the next generation of Aerospace & Defense systems. 
+
+The Sedaro Platform enables collaborative, multi-physics modeling and faster-than-real-time simulation across the space mission lifecycle. From system architecture to operations and wargaming, Sedaro is a trusted partner in driving automation, agility, and mission success. 
+
+With open standards, unlimited user licensing, and seamless integration into your digital engineering stack, Sedaro empowers teams to design, test, and operate complex systems with confidence. Whether simulating satellite constellations or multi-domain operations, Sedaro provides the speed, fidelity, and flexibility to stay ahead.Sedaro delivers mission simulation at scale for the next generation of Aerospace & Defense systems. The Sedaro Platform enables collaborative, multi-physics modeling and faster-than-real-time simulation across the space mission lifecycle. From system architecture to operations and wargaming, Sedaro is a trusted partner in driving automation, agility, and mission success. With open standards, unlimited user licensing, and seamless integration into your digital engineering stack, Sedaro empowers teams to design, test, and operate complex systems with confidence. Whether simulating satellite constellations or multi-domain operations, Sedaro provides the speed, fidelity, and flexibility to stay ahead.…see more
+Ibeos logo
+Lead Engineer
+Lead Engineer
+Ibeos · Full-timeIbeos · Full-time
+Jun 2016 - Aug 2019 · 3 yrs 3 mosJun 2016 to Aug 2019 · 3 yrs 3 mos
+Reston, VAReston, VA
+At Cubic Aerospace we design, prototype, analyze, and test electronics for high-reliability applications - primarily space avionics. In addition, we provide systems level aerospace consulting services including independent review of concepts and designs for programs, subsystems, and components. As Lead Engineer, Sebastian's primary responsibilities include electronics design, prototyping and testing, mechanical design, and various types of software development. 
+
+http://www.cubicaerospace.com/At Cubic Aerospace we design, prototype, analyze, and test electronics for high-reliability applications - primarily space avionics. In addition, we provide systems level aerospace consulting services including independent review of concepts and designs for programs, subsystems, and components. As Lead Engineer, Sebastian's primary responsibilities include electronics design, prototyping and testing, mechanical design, and various types of software development. http://www.cubicaerospace.com/…see more
+Virginia Tech logo
+Virginia Tech RockSat-X
+Virginia Tech RockSat-X
+2 yrs2 yrs
+Blacksburg, VABlacksburg, VA
+Team Lead
+Team Lead
+Aug 2014 - Jul 2016 · 2 yrsAug 2014 to Jul 2016 · 2 yrs
+As Team Lead of VT RockSat-X, Sebastian coordinated the conceptualization, design, manufacturing, testing, and integration of three sounding rocket payloads. Missions include experiments related to virtual reality, atmospheric composition, additive manufacturing in micro gravity, software defined radio, and CubeSat instrument design and verification. Most notably, Sebastian lead the effort to design and manufacture the team's 3D printer payload in 2015 which successfully 3D printed in micro gravity, 150 km above the earth, after surviving a 25g launch environment. Please see the section below for more details.As Team Lead of VT RockSat-X, Sebastian coordinated the conceptualization, design, manufacturing, testing, and integration of three sounding rocket payloads. Missions include experiments related to virtual reality, atmospheric composition, additive manufacturing in micro gravity, software defined radio, and CubeSat instrument design and verification. Most notably, Sebastian lead the effort to design and manufacture the team's 3D printer payload in 2015 which successfully 3D printed in micro gravity, 150 km above the earth, after surviving a 25g launch environment. Please see the section below for more details.…see more
+Vice President
+Vice President
+Aug 2014 - Aug 2015 · 1 yr 1 moAug 2014 to Aug 2015 · 1 yr 1 mo
+As Vice President of Virginia Tech's Human Powered Submarine Team, Sebastian had administrative, managerial and engineering roles and responsibilities. He worked to promote progress on the submarine's design and manufacturing while also handling the team's administrative needs.As Vice President of Virginia Tech's Human Powered Submarine Team, Sebastian had administrative, managerial and engineering roles and responsibilities. He worked to promote progress on the submarine's design and manufacturing while also handling the team's administrative needs.…see more
+Lockheed Martin logo
+Software Engineering Specialist Intern
+Software Engineering Specialist Intern
+Lockheed MartinLockheed Martin
+May 2015 - Dec 2015 · 8 mosMay 2015 to Dec 2015 · 8 mos
+Lockheed Martin logo
+Software Engineering Intern
+Software Engineering Intern
+Lockheed MartinLockheed Martin
+Jun 2014 - Aug 2014 · 3 mosJun 2014 to Aug 2014 · 3 mos
+Herndon, VAHerndon, VA
+EducationEducation
+Virginia Tech logo
+Virginia Tech
+Virginia Tech
+Bachelor of Science (BS), Computer Science Major with Mathematics MinorBachelor of Science (BS), Computer Science Major with Mathematics Minor
+2012 - 20162012 - 2016
+Activities and societies: Team Lead - RockSat-X, Vice President - Human Powered Submarine Design Team, University Honors, Phi Beta KappaActivities and societies: Team Lead - RockSat-X, Vice President - Human Powered Submarine Design Team, University Honors, Phi Beta Kappa
+Sebastian graduated from Virginia Tech in May of 2015, Summa Cum Laude and University Honors, with a Computer Science Bachelors degree and a minor in Mathematics.
+
 
