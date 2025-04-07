@@ -224,4 +224,82 @@ Bachelor of Science (BS), Computer Science Major with Mathematics MinorBachelor 
 Activities and societies: Team Lead - RockSat-X, Vice President - Human Powered Submarine Design Team, University Honors, Phi Beta KappaActivities and societies: Team Lead - RockSat-X, Vice President - Human Powered Submarine Design Team, University Honors, Phi Beta Kappa
 Sebastian graduated from Virginia Tech in May of 2015, Summa Cum Laude and University Honors, with a Computer Science Bachelors degree and a minor in Mathematics.
 
+Robert Enrico 
+PMP, CISSP managing cybersecurity and software product development for the space industry.
 
+US Space Force
+University of Maryland - College Park
+About
+Extensive management and leadership experience with Fortune 500 companies and as a United States Air Force Officer with strong consulting and problem-solving expertise in driving improvements for business operations. Proven governance and technical skills in cybersecurity, Lean/Six Sigma, DMAIC, SDLC, Agile, project management and ITIL with consistent results in managing people and multi-million dollar programs.Extensive management and leadership experience with Fortune 500 companies and as a United States Air Force Officer with strong consulting and problem-solving expertise in driving improvements for business operations. Proven governance and technical skills in cybersecurity, Lean/Six Sigma, DMAIC, SDLC, Agile, project management and ITIL with consistent results in managing people and multi-million dollar programs.
+ActivityActivity
+653 followers653 followers
+
+Show all comments
+ExperienceExperience
+
+US Space Force · Full-timeUS Space Force · Full-time
+Nov 2023 - Present · 1 yr 6 mosNov 2023 to Present · 1 yr 6 mos
+Los Angeles AFB · On-siteLos Angeles AFB · On-site
+Lead the development of architectures, standards, and capabilities for the military space enterprise focused towards cyber resiliency and defensive cyber operations. Lead the development of architectures, standards, and capabilities for the military space enterprise focused towards cyber resiliency and defensive cyber operations. 
+
+VP, Space and Missile Programs
+Celeris Systems Inc · Full-timeCeleris Systems Inc · Full-time
+Jul 2018 - Present · 6 yrs 10 mosJul 2018 to Present · 6 yrs 10 mos
+Greater Los Angeles AreaGreater Los Angeles Area
+United States Air Force logo
+Chief of Cybersecurity for Global Positioning Systems
+Chief of Cybersecurity for Global Positioning Systems
+United States Air ForceUnited States Air Force
+Jan 2015 - Jul 2018 · 3 yrs 7 mosJan 2015 to Jul 2018 · 3 yrs 7 mos
+Greater Los Angeles AreaGreater Los Angeles Area
+Led a team of 60-members and a $21M yearly budget to protect the Global Positioning System (GPS), used by over 3 billion people worldwide, from cyber adversaries. Learn more of how the US Air Force manages GPS at https://www.gps.gov/. 
+- Managed cybersecurity requirements and resourcing across space, ground, and user segments in compliance with DODI 8500.01, 8500.02, and 8510.01.
+- Developed and maintained a risk management framework for protecting and defending current and planned systems.
+- Implemented and maintained continuous monitoring of systems to ensure confidentiality, integrity, and availability incorporating robust threat management.Led a team of 60-members and a $21M yearly budget to protect the Global Positioning System (GPS), used by over 3 billion people worldwide, from cyber adversaries. Learn more of how the US Air Force manages GPS at https://www.gps.gov/. - Managed cybersecurity requirements and resourcing across space, ground, and user segments in compliance with DODI 8500.01, 8500.02, and 8510.01. - Developed and maintained a risk management framework for protecting and defending current and planned systems. - Implemented and maintained continuous monitoring of systems to ensure confidentiality, integrity, and availability incorporating robust threat management.…see more
+U.S. Air Force Reserve logo
+US Air Force Reserve
+US Air Force Reserve
+12 yrs 8 mos12 yrs 8 mos
+IT Program Manager
+IT Program Manager
+Jan 2012 - Mar 2015 · 3 yrs 3 mosJan 2012 to Mar 2015 · 3 yrs 3 mos
+- Managed data center consolidation and application rationalization initiatives across the Air Force
+- Led strategy and policy development to integrate warfighting and combat support capabilities for Joint, Coalition and Air Force warfighters- Managed data center consolidation and application rationalization initiatives across the Air Force - Led strategy and policy development to integrate warfighting and combat support capabilities for Joint, Coalition and Air Force warfighters…see more
+Lean Portfolio Management Office Leader
+Lean Portfolio Management Office Leader
+Aug 2002 - Dec 2011 · 9 yrs 5 mosAug 2002 to Dec 2011 · 9 yrs 5 mos
+- Managed enterprise improvement projects across HR, IT, and acquisitions for the US Air Force Office of the CIO and for a major USAF acquisitions center with a $3 billion portfolio
+- Provided performance management expertise towards the multi-year effort to reduce $1.2B in USAF IT spending- Managed enterprise improvement projects across HR, IT, and acquisitions for the US Air Force Office of the CIO and for a major USAF acquisitions center with a $3 billion portfolio - Provided performance management expertise towards the multi-year effort to reduce $1.2B in USAF IT spending…see more
+Second Image National (now Ontellus) logo
+Director of Technology
+Director of Technology
+Second Image, Inc.Second Image, Inc.
+Mar 2013 - Dec 2014 · 1 yr 10 mosMar 2013 to Dec 2014 · 1 yr 10 mos
+- Led the IT department for a national legal services company which processes approx. 1 million digitized legal records per year and maintains over 100TB of storage
+- Executed the portfolio of IT projects for improving existing services and for implementing new infrastructure, application, and desktop solutions for the company. Technologies include hosted VOIP, cloud CRM, server virtualization, desktop/server encryption, storage replication, and Java frameworks adhering to Agile.
+- Maintained compliance with the Health Insurance Portability and Accountability Act (HIPAA) by ensuring network and logical security of all technology that processes medical records and images
+- Managed the ERP and storage management strategy for the company while ensuring replication and failover between two data processing centers and a co-location site for disaster recovery- Led the IT department for a national legal services company which processes approx. 1 million digitized legal records per year and maintains over 100TB of storage - Executed the portfolio of IT projects for improving existing services and for implementing new infrastructure, application, and desktop solutions for the company. Technologies include hosted VOIP, cloud CRM, server virtualization, desktop/server encryption, storage replication, and Java frameworks adhering to Agile. - Maintained compliance with the Health Insurance Portability and Accountability Act (HIPAA) by ensuring network and logical security of all technology that processes medical records and images - Managed the ERP and storage management strategy for the company while ensuring replication and failover between two data processing centers and a co-location site for disaster recovery…see more
+Show all 11 experiences
+EducationEducation
+University of Maryland logo
+University of Maryland
+University of Maryland
+M.S., Business Administration (Information Systems)M.S., Business Administration (Information Systems)
+Sep 2002 - Dec 2003Sep 2002 - Dec 2003
+Penn State University logo
+Penn State University
+Penn State University
+B.S., Computer EngineeringB.S., Computer Engineering
+Aug 1993 - May 1998Aug 1993 - May 1998
+Licenses & certificationsLicenses & certifications
+ISC2 logo
+Certified Information Systems Security Professional (CISSP)
+Certified Information Systems Security Professional (CISSP)
+ISC2ISC2
+Issued Mar 2018Issued Mar 2018
+EC-Council logo
+Certified Ethical Hacker (CEH)
+Certified Ethical Hacker (CEH)
+EC-CouncilEC-Council
+Issued Dec 2017Issued Dec 2017
+Credential ID ECC55723036614
