@@ -13,8 +13,8 @@ import re
 
 TRAINING_DIR = "training"
 SUPPORTED_TYPES = [".pdf"]
-QUESTIONS_PER_SESSION = 5
-PASSING_SCORE = 3
+QUESTIONS_PER_SESSION = 7
+PASSING_SCORE = 5
 
 # --- Configuration ---
 st.set_page_config(page_title="iRIS Training Assistant", layout="wide")
